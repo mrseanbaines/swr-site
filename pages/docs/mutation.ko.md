@@ -68,9 +68,33 @@ function Profile () {
 
 > **`updateFn`**은 원격 뮤테이션을 다루기 위한 promise 또는 비동기 함수여야 합니다. 업데이트한 데이터를 반환해야 합니다.
 
+You can also pass a function to `optimisticData`.
+
+```jsx
+import useSWR, { useSWRConfig } from 'swr'
+
+function Profile () {
+  const { mutate } = useSWRConfig()
+  const { data } = useSWR('/api/user', fetcher)
+
+  return (
+    <div>
+      <h1>My name is {data.name}.</h1>
+      <button onClick={async () => {
+        const newName = data.name.toUpperCase()
+        mutate('/api/user', updateUserName(newName), {
+            optimisticData: user => ({ ...data, name: newName }),
+            rollbackOnError: true
+        });
+      }}>Uppercase my name!</button>
+    </div>
+  )
+}
+```
+
 **사용 가능한 옵션**
 
-**`optimisticData`**: 클라이언트 캐시를 즉시 업데이트하기 위한 데이터. 일반적으로 낙관적인 UI에서 사용됩니다.
+**`optimisticData`**: data to immediately update the client cache, or a function that receives current data and returns the new client cache data, usually used in optimistic UI.
 
 **`revalidate`**: 비동기 업데이트가 해소되면 캐시를 갱신합니다.
 
